@@ -1,19 +1,4 @@
-
-
- namespace TextEditor.Core;
-
-internal class ConsoleHandler
-{
-    public (int, int) GetSizes()
-    {
-        return (Console.BufferHeight, Console.BufferWidth);
-    }
-    public void Print(string buffer)
-    {
-        Console.Clear();
-        Console.Write(buffer);
-    }
-}
+namespace TextEditor.Core;
 
 internal class EditorView : IDisposable
 {
@@ -28,6 +13,12 @@ internal class EditorView : IDisposable
         _fileHandler = fh;
         var (height, width) = _consoleHandler.GetSizes();
         _buffer.LoadBuffer(_fileHandler.StreamLines((0, height), (0, width)));
+        _consoleHandler.OnConsoleResized += OnConsoleResized;
+    }
+
+    public void OnConsoleResized(object? sender, ConsoleResizedEventArgs e)
+    {
+        _buffer.LoadBuffer(_fileHandler.StreamLines((0, e.Height), (0, e.Width)));
     }
 
     public void DisplayBuffer()
