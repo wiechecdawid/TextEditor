@@ -65,11 +65,28 @@ public class FileHandlerTests : IAsyncLifetime
         var sut = new FileHandler("./test.txt");
 
         // Act
-        var result = sut.StreamLines((0, 1), (0, 10));
+        var result = sut.StreamLines((0, 3), (0, 10));
 
         // Assert
         Assert.Equal("namespace ", result[0]);
         Assert.Equal("", result[1]);
+        Assert.Equal("internal c", result[2]);
+        Assert.Equal(3, result.Length);
+    }
+
+    [Fact]
+    public void StreamLinesShould_ReturnArrayOfLines_MovedByCursor()
+    {
+        // Arrange
+        var sut = new FileHandler("./test.txt");
+
+        // Act
+        var result = sut.StreamLines((0, 100), (5, 10));
+
+        // Assert
+        Assert.Equal("pace TextE", result[0]);
+        Assert.Equal("", result[1]);
+        Assert.Equal("nal class ", result[2]);
         Assert.Equal(50, result.Length);
     }
 

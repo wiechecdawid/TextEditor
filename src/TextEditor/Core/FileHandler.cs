@@ -14,7 +14,7 @@ public class FileHandler : IDisposable
         var buffer = new List<string>();
         using var sr = new StreamReader(_fs);
         int index = 0;
-        while (sr.Peek() >= 0 || index < lineSelector.startingLine + lineSelector.lines)
+        while (sr.Peek() >= 0 && index < lineSelector.startingLine + lineSelector.lines)
         {
             var line = sr.ReadLine();
             string lineToAdd = line ?? "";
@@ -25,16 +25,18 @@ public class FileHandler : IDisposable
                     lineToAdd = line?.Substring(
                     (int)columnSelector.startingColumn, 
                     (int)(columnSelector.columns ?? line.Length - columnSelector.startingColumn) 
-                    );
+                    )!;
                 }
-                catch(ArgumentOutOfRangeException e)
+                catch(ArgumentOutOfRangeException)
                 {
                     if (columnSelector.startingColumn > 0)
                     {
-                        lineToAdd = line.Substring(
+                        lineToAdd = columnSelector.startingColumn < line.Length
+                        ? line.Substring(
                             (int)columnSelector.startingColumn,
                             (int)(line.Length - columnSelector.startingColumn)
-                        );
+                        )
+                        : "";
                     }
                 }
             }
