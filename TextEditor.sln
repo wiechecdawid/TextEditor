@@ -7,6 +7,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{F08EAB1A-88A
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TextEditor", "src\TextEditor\TextEditor.csproj", "{31ACA454-8326-4685-B412-925159AAC662}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{60221E36-C523-46A0-8CE7-47A2A7CA4A19}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TextEditor.Tests.Unit", "tests\TextEditor.Tests.Unit\TextEditor.Tests.Unit.csproj", "{DF249159-CEC4-494F-911F-A375D2FF6419}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,12 +21,17 @@ Global
 		{31ACA454-8326-4685-B412-925159AAC662}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{31ACA454-8326-4685-B412-925159AAC662}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{31ACA454-8326-4685-B412-925159AAC662}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF249159-CEC4-494F-911F-A375D2FF6419}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF249159-CEC4-494F-911F-A375D2FF6419}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF249159-CEC4-494F-911F-A375D2FF6419}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF249159-CEC4-494F-911F-A375D2FF6419}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{31ACA454-8326-4685-B412-925159AAC662} = {F08EAB1A-88A3-47AB-9816-6E6D9D9276E8}
+		{DF249159-CEC4-494F-911F-A375D2FF6419} = {60221E36-C523-46A0-8CE7-47A2A7CA4A19}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {977669AC-38EC-4604-8462-BA5E6FB8431A}
