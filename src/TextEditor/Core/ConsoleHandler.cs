@@ -5,11 +5,13 @@ internal class ConsoleHandler
     public event EventHandler<ConsoleResizedEventArgs>? OnConsoleResized;
     private int _height;
     private int _width;
+    private readonly CancellationTokenSource _cts;
 
-    public ConsoleHandler()
+    public ConsoleHandler(CancellationTokenSource cts)
     {
         _height = Console.WindowHeight;
         _width = Console.WindowWidth;
+        _cts = cts;
     }
 
     public (int, int) GetSizes()
@@ -31,5 +33,11 @@ internal class ConsoleHandler
     {
         Console.Clear();
         Console.Write(buffer);
+    }
+
+    public void Print(string[] buffer)
+    {
+        Console.Clear();
+        Console.Write(string.Join('\n', buffer));
     }
 }

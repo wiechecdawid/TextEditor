@@ -4,7 +4,7 @@ internal sealed class Buffer
 {
     private static readonly object Lock = new object();
     private static Buffer? Instance = null;
-    private string[]? _buffer;
+    private string? _buffer;
     
     private Buffer()
     {
@@ -22,34 +22,54 @@ internal sealed class Buffer
 
     public string GetBuffer()
     {
-        return string.Join('\n', _buffer ?? []);
+        return _buffer ?? string.Empty;
     }
 
     public void LoadBuffer(string buffer)
     {
-        _buffer = buffer.Split('\n');
+        _buffer = buffer;
     }
 
     public void LoadBuffer(string[] buffer)
     {
-        _buffer = buffer;
+        _buffer = string.Join('\n', buffer);
     }
 
     public void LoadBuffer(Func<string[]> buffer)
     {
-        _buffer = buffer.Invoke();
+        _buffer = string.Join('\n', buffer.Invoke());
     }
 
-    public void WriteToBuffer(int l, int col, ReadOnlySpan<string> txt)
+    public void WriteToBuffer(int l, int col, ReadOnlySpan<char> txt)
     {
-        // ref string line = ref _buffer[l];
-        // line.Insert(col, txt.ToString());
-        // _onBufferChanged?.Invoke(_buffer);
-        throw new NotImplementedException();
+        var index = 0;
+        var line = 0;
+        while (line < l)
+        {
+            var sub = (_buffer ?? "")[index..].AsSpan();
+            index += sub.IndexOf('\n') + 1;
+            line++;
+        }
+
+        index += col;
+        var before = (_buffer ?? "").Substring(0, index).AsSpan();
+        var after = (_buffer ?? "").Substring(index).AsSpan();
+        _buffer = string.Concat(before, txt, after);
     }
 
+    // Remove sequence of characters from buffer. l is the line (delimited by '\n'), col is the column, count is the number of backwards characters to remove.
     public void RemoveFromBuffer(int l, int col, int count)
     {
-        throw new NotImplementedException();
+        var index = 0;
+        var line = 0;
+        while (line < l)
+        {
+            var sub = (_buffer ?? "")[index..].AsSpan();
+            index += sub.IndexOf('\n') + 1;
+            line++;
+        }
+
+        index += col;
+        _buffer = _buffer?.Remove(index - count, count);
     }
 }
