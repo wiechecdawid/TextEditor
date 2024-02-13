@@ -29,6 +29,18 @@ internal class ConsoleHandler
         }
     }
 
+    public void ReadKey()
+    {
+        if (Console.KeyAvailable)
+        {
+            var key = Console.ReadKey(true);
+            if (key.Key == ConsoleKey.Escape)
+            {
+                _cts.Cancel();
+            }
+        }
+    }
+
     public void Print(string buffer)
     {
         Console.Clear();

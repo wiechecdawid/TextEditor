@@ -3,20 +3,21 @@ namespace TextEditor.Core;
 public class FileHandler : IDisposable
 {
     private Stream _fs;
+    private StreamReader _sr;
 
     public FileHandler(string path)
     {
         _fs = File.Open(path, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+        _sr = new StreamReader(_fs);
     }
 
     public string[] StreamLines((int startingLine, int lines) lineSelector, (int? startingColumn, int? columns) columnSelector)
     {
         var buffer = new List<string>();
-        using var sr = new StreamReader(_fs);
         int index = 0;
-        while (sr.Peek() >= 0 && index < lineSelector.startingLine + lineSelector.lines)
+        while (_sr.Peek() >= 0 && index < lineSelector.startingLine + lineSelector.lines)
         {
-            var line = sr.ReadLine();
+            var line = _sr.ReadLine();
             string lineToAdd = line ?? "";
             if (columnSelector.startingColumn is not null)
             {
@@ -51,5 +52,9 @@ public class FileHandler : IDisposable
         return [.. buffer];
     }
 
-    public void Dispose() => _fs.Dispose();
+    public void Dispose()
+    {
+        _sr.Dispose();
+        _fs.Dispose();
+    }
 }
