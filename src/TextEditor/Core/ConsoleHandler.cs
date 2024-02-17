@@ -6,12 +6,14 @@ internal class ConsoleHandler
     private int _height;
     private int _width;
     private readonly CancellationTokenSource _cts;
+    private readonly KeyMap _map;
 
     public ConsoleHandler(CancellationTokenSource cts)
     {
         _height = Console.WindowHeight;
         _width = Console.WindowWidth;
         _cts = cts;
+        _map = new KeyMap();
     }
 
     public (int, int) GetSizes()
