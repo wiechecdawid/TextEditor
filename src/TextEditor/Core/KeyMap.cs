@@ -1,25 +1,22 @@
 using System;
 using System.Collections.Generic;
 
-namespace TextEditor.Core
+namespace TextEditor.Core;
+
+public static class KeyMap
 {
-    public class KeyMap
+    private static Dictionary<ConsoleKey, Action> _keyActions = new();
+
+    public static void AddKeyAction(ConsoleKey key, Action action)
     {
-        private Dictionary<ConsoleKey, Action<Buffer, Cursor>> _specialKeyActions;
+        _keyActions.Add(key, action);
+    }
 
-        public KeyMap()
+    public static void AddKeyActionRange(Dictionary<ConsoleKey, Action> keyActions)
+    {
+        foreach (var keyAction in keyActions)
         {
-            _specialKeyActions = new Dictionary<ConsoleKey, Action<Buffer, Cursor>>
-            {
-                { ConsoleKey.LeftArrow, (_, cursor) => MoveLeft(cursor) },
-                { ConsoleKey.RightArrow, (_, cursor) => cursor.MoveRight() },
-                { ConsoleKey.UpArrow, (_, cursor) => cursor.MoveUp() },
-                { ConsoleKey.DownArrow, (_, cursor) => cursor.MoveDown() },
-                { ConsoleKey.Backspace, (buffer, cursor) => cursor.Backspace() },
-                { ConsoleKey.Delete, (buffer, cursor) => cursor.Delete()
-            };
+            _keyActions.Add(keyAction.Key, keyAction.Value);
         }
-
-        
     }
 }

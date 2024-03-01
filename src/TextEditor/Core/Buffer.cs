@@ -1,75 +1,121 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+
 namespace TextEditor.Core;
 
-internal sealed class Buffer
+public class Buffer
 {
-    private static readonly object Lock = new object();
-    private static Buffer? Instance = null;
-    private string? _buffer;
-    
-    private Buffer()
+    public event EventHandler BufferChanged;
+    private List<string> _lines = new();
+
+    public Buffer()
     {
     }
 
-    public static Buffer GetInstance()
+    public Buffer(string filePath)
     {
-        lock(Lock)
+        LoadFromFile(filePath);
+    }
+
+    public List<string> Lines => _lines;
+
+    public void LoadFromFile(string filePath)
+    {
+        try
         {
-            Instance ??= new Buffer();
+            _lines = new List<string>(File.ReadAllLines(filePath));
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to load file: {ex.Message}");
+        }
+    }
+
+    public void SaveToFile(string filePath)
+    {
+        try
+        {
+            File.WriteAllLines(filePath, _lines);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to save file: {ex.Message}");
+        }
+    }
+
+    public void InsertLine(int index, string line)
+    {
+        _lines.Insert(index, line);
+    }
+
+    public void RemoveLine(int index)
+    {
+        _lines.RemoveAt(index);
+    }
+
+    public void RemoveFrom(int lineIndex, int columnIndex, int count)
+    {
+        if (lineIndex >= 0 && lineIndex < _lines.Count)
+        {
+            string line = _lines[lineIndex];
+            if (columnIndex >= 0 && columnIndex < line.Length)
+            {
+                int endIndex = columnIndex + count;
+                if (endIndex > line.Length)
+                {
+                    endIndex = line.Length;
+                }
+                _lines[lineIndex] = line.Remove(columnIndex, endIndex - columnIndex);
+            }
+            else if (columnIndex >= line.Length && lineIndex < _lines.Count - 1)
+            {
+                string nextLine = _lines[lineIndex + 1];
+                int remainingCount = count - (line.Length - columnIndex);
+                if (remainingCount < nextLine.Length)
+                {
+                    _lines[lineIndex] = line + nextLine.Substring(remainingCount);
+                    _lines.RemoveAt(lineIndex + 1);
+                }
+                else
+                {
+                    _lines[lineIndex] = line + nextLine;
+                    _lines.RemoveAt(lineIndex + 1);
+                    RemoveFrom(lineIndex, line.Length, remainingCount - nextLine.Length);
+                }
+            }
         }
 
-        return Instance;
+        BufferChanged?.Invoke(this, EventArgs.Empty);
     }
 
-    public string GetBuffer()
+    public void WriteTo(int lineIndex, int columnIndex, string text)
     {
-        return _buffer ?? string.Empty;
-    }
-
-    public void LoadBuffer(string buffer)
-    {
-        _buffer = buffer;
-    }
-
-    public void LoadBuffer(string[] buffer)
-    {
-        _buffer = string.Join('\n', buffer);
-    }
-
-    public void LoadBuffer(Func<string[]> buffer)
-    {
-        _buffer = string.Join('\n', buffer.Invoke());
-    }
-
-    public void WriteToBuffer(int l, int col, ReadOnlySpan<char> txt)
-    {
-        var index = 0;
-        var line = 0;
-        while (line < l)
+        if (_lines is null)
         {
-            var sub = (_buffer ?? "")[index..].AsSpan();
-            index += sub.IndexOf('\n') + 1;
-            line++;
+            _lines = [.. text.Split(Environment.NewLine)];
+            return;
         }
 
-        index += col;
-        var before = (_buffer ?? "").Substring(0, index).AsSpan();
-        var after = (_buffer ?? "").Substring(index).AsSpan();
-        _buffer = string.Concat(before, txt, after);
-    }
-
-    // Remove sequence of characters from buffer. l is the line (delimited by '\n'), col is the column, count is the number of backwards characters to remove.
-    public void RemoveFromBuffer(int l, int col, int count)
-    {
-        var index = 0;
-        var line = 0;
-        while (line < l)
+        if (lineIndex >= 0 && lineIndex < _lines.Count)
         {
-            var sub = (_buffer ?? "")[index..].AsSpan();
-            index += sub.IndexOf('\n') + 1;
-            line++;
+            string line = _lines[lineIndex];
+            if (columnIndex >= 0 && columnIndex <= line.Length)
+            {
+                _lines[lineIndex] = line.Insert(columnIndex, text);
+            }
+            else if (columnIndex > line.Length)
+            {
+                _lines[lineIndex] = line + text;
+            }
         }
 
-        index += col;
-        _buffer = _buffer?.Remove(index - count, count);
+        RefactorLines();
+        BufferChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void RefactorLines()
+    {
+        _lines = [.. string.Join(Environment.NewLine, _lines).Split(Environment.NewLine)];
     }
 }

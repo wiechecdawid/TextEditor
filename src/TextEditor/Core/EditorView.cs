@@ -1,33 +1,33 @@
+using System;
+using MyBuffer = TextEditor.Core.Buffer;
+
 namespace TextEditor.Core;
 
-internal class EditorView : IDisposable
+public class EditorView
 {
-    private readonly Buffer _buffer;
-    private readonly FileHandler _fileHandler;
-    private readonly ConsoleHandler _consoleHandler;
+    private readonly MyBuffer _buffer;
+    private int startingLine = 0;
 
-    public EditorView(ConsoleHandler ch, FileHandler fh)
+    public EditorView(MyBuffer buffer)
     {
-        _consoleHandler = ch;
-        _buffer = Buffer.GetInstance();
-        _fileHandler = fh;
-        var (height, width) = _consoleHandler.GetSizes();
-        _buffer.LoadBuffer(_fileHandler.StreamLines((0, height), (0, width)));
-        _consoleHandler.OnConsoleResized += OnConsoleResized;
-    }
-
-    public void OnConsoleResized(object? sender, ConsoleResizedEventArgs e)
-    {
-        _buffer.LoadBuffer(_fileHandler.StreamLines((0, e.Height), (0, e.Width)));
+        _buffer = buffer;
+        _buffer.BufferChanged += OnBufferChanged;
     }
 
     public void DisplayBuffer()
     {
-        _consoleHandler.Print(_buffer.GetBuffer());
+        Console.Clear();
+        Console.Out.Write("\u001b[3J");
+        if (Console.WindowHeight > _buffer.Lines.Count) startingLine = 0;
+        // if the buffer is smaller than the window, we can display the entire buffer. Otherwise, start at the starting line
+        for (int i = startingLine; i < Console.WindowHeight && i < _buffer.Lines.Count; i++)
+        {
+            Console.WriteLine($"{(i+1).ToString("D4")}\t{_buffer.Lines[i].PadRight(Console.WindowWidth - 1)}");
+        }
     }
 
-    public void Dispose()
+    public void OnBufferChanged(object? sender, EventArgs e)
     {
-        _fileHandler.Dispose();
+        DisplayBuffer();
     }
 }
